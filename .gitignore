@@ -1,0 +1,13 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# 运行期数据
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# 系统
+.DS_Store

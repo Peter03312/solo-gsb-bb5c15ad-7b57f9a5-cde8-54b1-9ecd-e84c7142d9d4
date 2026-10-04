@@ -1,0 +1,27 @@
+services:
+  archive-redaction:
+    build: .
+    image: archive-redaction:latest
+    container_name: archive-redaction
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-8000}:8000"
+    environment:
+      DATA_DIR: /data
+      MAX_UPLOAD_MB: "${MAX_UPLOAD_MB:-20}"
+      MAX_IMAGE_PIXELS: "${MAX_IMAGE_PIXELS:-60000000}"
+      REDACTION_COLOR: "${REDACTION_COLOR:-000000}"
+      SQLITE_BUSY_TIMEOUT_MS: "${SQLITE_BUSY_TIMEOUT_MS:-15000}"
+      UVICORN_WORKERS: "1"
+    volumes:
+      # 持久化 SQLite、原图与发布成品；原图不会经任何 HTTP 接口暴露
+      - archive-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  archive-data:
